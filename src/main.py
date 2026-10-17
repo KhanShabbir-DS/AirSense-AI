@@ -9,7 +9,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import statsmodels.api as sm
 from matplotlib.colors import Normalize
-from matplotlib.cm import get_cmap
 from scipy.stats import kurtosis, skew
 from sklearn.linear_model import LinearRegression
 
@@ -103,7 +102,14 @@ def plot_monthly_average_aqi(daily: pd.DataFrame) -> None:
 def plot_top10_cities_by_aqi(daily: pd.DataFrame) -> None:
     top10 = daily.groupby('city')['aqi'].mean().nlargest(10)
     plt.figure(figsize=(10, 6))
-    sns.barplot(x=top10.index, y=top10.values, palette='viridis')
+    sns.barplot(
+        x=top10.index,
+        y=top10.values,
+        hue=top10.index,
+        palette='viridis',
+        dodge=False,
+        legend=False,
+    )
     plt.xticks(rotation=45)
     plt.title('Top 10 Cities by Average AQI', fontsize=16)
     plt.xlabel('City', fontsize=12)
@@ -179,7 +185,15 @@ def plot_city_boxplot(daily: pd.DataFrame) -> None:
         'Bengaluru': '#F7CAC9',
         'Lucknow': '#92A8D1',
     }
-    sns.boxplot(x='city', y='aqi', data=subset, palette=palette)
+    sns.boxplot(
+        x='city',
+        y='aqi',
+        data=subset,
+        hue='city',
+        palette=palette,
+        dodge=False,
+        legend=False,
+    )
     plt.title('AQI Distribution by City', fontsize=16, fontweight='bold')
     plt.xlabel('City', fontsize=12)
     plt.ylabel('AQI', fontsize=12)
@@ -196,10 +210,18 @@ def plot_delhi_seasonal_distribution(daily: pd.DataFrame) -> None:
         return
     monthly_avg = delhi_data.groupby('month')['aqi'].mean()
     norm = Normalize(vmin=monthly_avg.min(), vmax=monthly_avg.max())
-    cmap = get_cmap('plasma')
+    cmap = matplotlib.colormaps.get_cmap('plasma')
     palette = [cmap(norm(value)) for value in monthly_avg.sort_index()]
     plt.figure(figsize=(10, 6))
-    sns.boxplot(x='month', y='aqi', data=delhi_data, palette=palette)
+    sns.boxplot(
+        x='month',
+        y='aqi',
+        data=delhi_data,
+        hue='month',
+        palette=palette,
+        dodge=False,
+        legend=False,
+    )
     plt.title('Seasonal AQI Distribution in Delhi', fontsize=16, fontweight='bold')
     plt.xlabel('Month', fontsize=12)
     plt.ylabel('AQI', fontsize=12)
@@ -234,10 +256,11 @@ def plot_pm25_aqi_relationship(daily: pd.DataFrame) -> None:
     plt.scatter(
         daily['pm25'],
         daily['aqi'],
-        c=get_cmap('inferno')(norm(daily['aqi'])),
+        c=matplotlib.colormaps.get_cmap('inferno')(norm(daily['aqi'])),
         alpha=0.6,
         edgecolor='white',
         linewidth=0.5,
+        label='AQI data',
     )
     plt.title('Relationship between PM2.5 and AQI', fontsize=16, fontweight='bold')
     plt.xlabel('PM2.5 Concentration (µg/m³)', fontsize=12)
@@ -350,7 +373,7 @@ def plot_linear_regression(daily: pd.DataFrame) -> None:
     plt.scatter(
         reg_data['pm25'],
         reg_data['aqi'],
-        c=get_cmap('viridis')(norm(y_values)),
+        c=matplotlib.colormaps.get_cmap('viridis')(norm(y_values)),
         alpha=0.6,
         edgecolor='white',
         linewidth=0.5,
@@ -388,7 +411,15 @@ def plot_city_r2_scores(daily: pd.DataFrame) -> None:
         return
     r2_df = pd.DataFrame(r2_records).sort_values('r_squared', ascending=False)
     plt.figure(figsize=(14, 6))
-    sns.barplot(data=r2_df, x='city', y='r_squared', palette='viridis')
+    sns.barplot(
+        data=r2_df,
+        x='city',
+        y='r_squared',
+        hue='city',
+        palette='viridis',
+        dodge=False,
+        legend=False,
+    )
     plt.title('City-wise R²: How Well PM2.5 Predicts AQI', fontsize=16, fontweight='bold')
     plt.xlabel('City', fontsize=12)
     plt.ylabel('R² Value', fontsize=12)
