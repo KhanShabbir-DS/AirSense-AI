@@ -63,8 +63,9 @@ def load_prediction_engine():
     return AQIPredictor()
 
 
-# Cached predictor instance for the app
-predictor = load_prediction_engine()
+# Set when the Streamlit app starts. Keeping module import side-effect free lets
+# utility functions be imported without requiring locally trained model files.
+predictor = None
 
 # =========================================================
 # Load CSS
@@ -1802,30 +1803,28 @@ AirSense AI/
 # Main
 # =========================================================
 
-load_css()
+def main():
+    global predictor
+    predictor = load_prediction_engine()
 
-page = sidebar()
+    load_css()
+    page = sidebar()
 
-if page == "🏠 Home":
+    if page == "🏠 Home":
+        home()
+    elif page == "🤖 AQI Prediction":
+        prediction_page()
+    elif page == "🌍 City Explorer":
+        city_explorer_page()
+    elif page == "📊 Analytics":
+        analytics_page()
+    elif page == "🧠 Model Performance":
+        st.title("🧠 Model Performance")
+        model_performance_page()
+    elif page == "ℹ About":
+        about_page()
 
-    home()
 
-elif page == "🤖 AQI Prediction":
-
-    prediction_page()
-
-elif page == "🌍 City Explorer":
-    city_explorer_page()
-
-
-elif page == "📊 Analytics":
-    analytics_page()
-
-elif page == "🧠 Model Performance":
-
-    st.title("🧠 Model Performance")
-    model_performance_page()
-
-elif page == "ℹ About":
-    about_page()
+if __name__ == "__main__":
+    main()
 
