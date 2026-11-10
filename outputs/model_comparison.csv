@@ -1,0 +1,4 @@
+,MAE,RMSE,R2,CV_R2,Training_Time
+Random Forest,20.434,42.151,0.9023,0.902,4.53
+XGBoost,20.63,44.304,0.892,0.9046,0.74
+Linear Regression,29.849,56.642,0.8235,0.8662,0.17

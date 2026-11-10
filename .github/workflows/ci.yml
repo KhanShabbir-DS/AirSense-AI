@@ -2,47 +2,50 @@ name: CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.9'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: Check syntax
-      run: |
-        python -m py_compile src/main.py
-        python -m py_compile app/app.py
+      - name: Check syntax
+        run: |
+          python -m py_compile app/app.py
+          python -m py_compile src/config.py
+          python -m py_compile src/data_loader.py
+          python -m py_compile src/preprocessing.py
+          python -m py_compile src/feature_engineering.py
+          python -m py_compile src/predictor.py
+          python -m py_compile src/train_regression.py
+          python -m py_compile src/train_classification.py
+          python -m py_compile src/regression_analysis.py
 
-    - name: Test data loading
-      run: |
-        python -c "
-        import pandas as pd
-        from pathlib import Path
-        data_path = Path('Data/india_aqi.csv')
-        if data_path.exists():
-            df = pd.read_csv(data_path)
-            print(f'Dataset loaded successfully: {len(df)} rows')
-        else:
-            print('Dataset not found')
-        "
+      - name: Verify dataset
+        run: |
+          python -c "
+          from pathlib import Path
+          import pandas as pd
+          data_path = Path('data/city_day.csv')
+          assert data_path.exists(), 'data/city_day.csv not found'
+          df = pd.read_csv(data_path)
+          print(f'Dataset loaded: {len(df):,} rows, {df[\"City\"].nunique()} cities')
+          "
 
-    - name: Lint with flake8
-      run: |
-        pip install flake8
-        flake8 src/main.py app/app.py --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 src/main.py app/app.py --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+      - name: Run tests
+        run: pytest tests/ -v

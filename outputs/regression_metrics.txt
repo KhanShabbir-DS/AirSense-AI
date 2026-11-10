@@ -1,0 +1,6 @@
+AirSense AI Regression Results
+
+                      MAE    RMSE      R2   CV_R2  Training_Time
+Random Forest      20.434  42.151  0.9023  0.9020           4.53
+XGBoost            20.630  44.304  0.8920  0.9046           0.74
+Linear Regression  29.849  56.642  0.8235  0.8662           0.17
